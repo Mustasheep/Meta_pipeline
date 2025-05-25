@@ -1,2 +1,22 @@
+# Arquivo de credenciais
 my_credentials.py
+
+# Pasta de notebooks
 notebooks/
+
+# Ambientes virtuais Python
+venv/
+*.venv
+env/
+ENV/
+
+# Arquivos de cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos de IDEs e editores
+.vscode/
+.idea/
+*.swp
+*~
