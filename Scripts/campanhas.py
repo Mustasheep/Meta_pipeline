@@ -6,7 +6,7 @@ from facebook_business.adobjects.adaccount import AdAccount
 from facebook_business.exceptions import FacebookRequestError
 
 # Importando credenciais
-import my_credentials as credential # Mantendo seu import
+import my_credentials as credential
 
 # --- Bloco de Configuração de Credenciais ---
 try:
