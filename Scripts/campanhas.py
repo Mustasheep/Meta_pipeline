@@ -1,3 +1,4 @@
+# Bibliotecas necessárias
 import os
 import pandas as pd
 from facebook_business.api import FacebookAdsApi
@@ -36,13 +37,13 @@ except FacebookRequestError as e:
 # --- Buscando Campanhas ---
 try:
     account = AdAccount(fbid=my_ad_account_id)
-
+    
     campaign_fields = [
         'id', 'name', 'status', 'effective_status', 'objective',
         'created_time', 'start_time', 'stop_time', 'spend_cap',
         'daily_budget', 'lifetime_budget'
     ]
-
+    
     print(f"\nBuscando campanhas para a conta: {my_ad_account_id}...")
     campaigns_data = account.get_campaigns(fields=campaign_fields)
 
@@ -53,7 +54,7 @@ try:
 
     if campaigns_list:
         df_campaigns = pd.DataFrame(campaigns_list)
-        print("\nCampanhas encontradas. Use 'df_campaings' para acessar o DataFrame.")
+        print("\nCampanhas encontradas com sucesso. DataFrame em 'df_campaigns'.")
     else:
         print("Nenhuma campanha encontrada.")
 
@@ -63,49 +64,46 @@ except FacebookRequestError as e:
 except Exception as e:
     print(f"Um erro inesperado ocorreu: {e}")
 
-# -- Capturando Insights --
+# --- Buscando Insights ---
 try:
     account = AdAccount(fbid=my_ad_account_id)
+    
     insight_fields = [
         'campaign_name',
         'campaign_id',
         'spend',
         'inline_link_clicks',
         'impressions',
-        'ctr',
-        'cpc'
+        'ctr', 
+        'cpc' 
     ]
+    
     insight_params = {
-        'level': 'campaign', # Poderia ser 'adset' ou 'ad' também
+        'level': 'campaign',
         'date_preset': 'last_7d',
         'time_increment': 1,
         'breakdowns': ['publisher_platform'],
         'filtering': [{'field': 'campaign.effective_status', 'operator': 'IN', 'value': ['ACTIVE']}]
-        'limit': 500
     }
 
     print(f"\nBuscando insights para a conta: {my_ad_account_id}...")
     insights_cursor = account.get_insights(fields=insight_fields, params=insight_params)
-
+    
     insights_list = []
-    for insight in insights_cursor: # O resultado é um cursor que pode ser iterado
-        insights_list.append(dict(insight)) # Convertendo cada objeto Insight para dicionário
+    for insight in insights_cursor:
+        insights_list.append(dict(insight)) 
 
     if insights_list:
         df_insights = pd.DataFrame(insights_list)
-        print("\nInsights encontrados. Acessar o Dataframe com 'df_insights'.")
-
-# Limpeza e transformação
+        print("\nInsights encontrados. DataFrame em 'df_insights'.")
+        
         cols_to_numeric = ['spend', 'inline_link_clicks', 'impressions', 'ctr', 'cpc']
         for col in cols_to_numeric:
             if col in df_insights.columns:
                 df_insights[col] = pd.to_numeric(df_insights[col], errors='coerce')
 
-        print("\nDataFrame de Insights após conversão (primeiras linhas):")
-        print(df_insights[['date_start', 'campaign_name', 'publisher_platform', 'spend', 'inline_link_clicks', 'impressions']].head())
-
-# df_insights.to_csv('insights_campanhas_por_plataforma.csv', index=False)
-# print("\nDados de insights salvos em 'insights_campanhas_por_plataforma.csv'")
+        # df_insights.to_csv('insights_campanhas_por_plataforma.csv', index=False)
+        # print("\nDados de insights salvos em 'insights_campanhas_por_plataforma.csv'")
     else:
         print("Nenhum insight encontrado com os critérios especificados.")
 
@@ -113,4 +111,4 @@ except FacebookRequestError as e:
     print(f"Erro ao buscar insights: {e}")
     print(f"Detalhes do erro: Código: {e.api_error_code()}, Mensagem: {e.api_error_message()}")
 except Exception as e:
-   print(f"Um erro inesperado ocorreu: {e}")
+    print(f"Um erro inesperado ocorreu: {e}")
