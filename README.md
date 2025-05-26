@@ -92,9 +92,7 @@ O script principal realiza as seguintes operações:
 
 Este script forma uma excelente base para análises mais complexas. Algumas ideias para evolução:
 
-* **Armazenamento de Dados:** Salvar os DataFrames em arquivos CSV, Excel ou em um banco de dados.
 * **Visualização de Dados:** Gerar gráficos e dashboards (ex: com `matplotlib`, `seaborn`, `plotly` ou ferramentas de BI).
-* **Análise Estatística:** Aplicar testes estatísticos para identificar campanhas com melhor performance.
 * **Detecção de Anomalias:** Identificar mudanças bruscas em KPIs.
 * **Automação Avançada:** Agendar a execução do script para coletar dados regularmente.
 * **Relatórios Automáticos:** Gerar e enviar relatórios por e-mail.
