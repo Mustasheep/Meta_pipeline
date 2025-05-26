@@ -63,7 +63,7 @@ O script principal realiza as seguintes operações:
 
 2.  **Instalação:**
     ```bash
-    git clone [https://github.com/Mustasheep/script_metaapi.git](https://github.com/Mustasheep/script_metaapi.git)
+    git clone https://github.com/Mustasheep/script_metaapi.git
     cd script_metaapi
     pip install -r Requirements.txt
     ```
