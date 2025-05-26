@@ -99,6 +99,7 @@ Este script forma uma excelente base para análises mais complexas. Algumas idei
 * **Detecção de Anomalias:** Identificar mudanças bruscas em KPIs.
 * **Automação Avançada:** Agendar a execução do script para coletar dados regularmente.
 * **Relatórios Automáticos:** Gerar e enviar relatórios por e-mail.
+* **Machine Learning:** Aplicar modelos de regressão para prever performance, segmentação de audiências com clustering e NLP para análise de criativos.
 
 ## Contribuição
 
