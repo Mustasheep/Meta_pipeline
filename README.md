@@ -48,7 +48,6 @@ O script principal realiza as seguintes operações:
 * **Python 3.x**
 * **Pandas:** Para manipulação e análise de dados em formato de DataFrame.
 * **Facebook Business SDK (`facebook_business`):** Biblioteca oficial da Meta para interagir com a Ads API.
-* **os:** (Importada, embora o uso principal no script fornecido seja indireto através do `my_credentials`).
 
 ## Como Usar
 
@@ -77,7 +76,7 @@ O script principal realiza as seguintes operações:
         APP_ID = 'SEU_APP_ID'
         APP_SECRET = 'SEU_APP_SECRET'
         ACCESS_TOKEN = 'SEU_ACCESS_TOKEN'
-        AD_ACCOUNT_ID = 'SEU_AD_ACCOUNT_ID' # ex: 'act_123456789012345'
+        AD_ACCOUNT_ID = 'SEU_AD_ACCOUNT_ID'
         ```
 
 4.  **Execução:**
@@ -100,20 +99,6 @@ Este script forma uma excelente base para análises mais complexas. Algumas idei
 * **Automação Avançada:** Agendar a execução do script para coletar dados regularmente.
 * **Relatórios Automáticos:** Gerar e enviar relatórios por e-mail.
 * **Machine Learning:** Aplicar modelos de regressão para prever performance, segmentação de audiências com clustering e NLP para análise de criativos.
-
-## Contribuição
-
-Contribuições são bem-vindas! Se você tiver ideias para melhorias, novas funcionalidades ou correções de bugs:
-
-1.  Faça um Fork do projeto.
-2.  Crie uma branch para sua feature (`git checkout -b feature/nova-feature`).
-3.  Faça commit das suas alterações (`git commit -m 'Adiciona nova-feature'`).
-4.  Faça push para a branch (`git push origin feature/nova-feature`).
-5.  Abra um Pull Request.
-
-## Autor
-
-*   [LinkedIn](https://www.linkedin.com/in/thiago-mustasheep/)
 
 ## Licença
 
