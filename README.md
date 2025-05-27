@@ -85,7 +85,7 @@ O script principal realiza as seguintes operações:
         ```bash
         python campanhas.py
         ```
-    * O script imprimirá mensagens de status no console e, se bem-sucedido, os DataFrames `df_campaigns` e `df_insights` estarão disponíveis no ambiente do script para uso (por exemplo, em um interpretador Python interativo ou se você adicionar código para salvá-los ou exibi-los).
+    * O script imprimirá mensagens de status no console e, se bem-sucedido, os DataFrames `df_campaigns` e `df_insights` estarão disponíveis no ambiente do script para uso (recomendo executar em um interpretador Python interativo, como o Jupyter notebook).
 
 
 ## Próximos Passos e Evolução
