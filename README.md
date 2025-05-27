@@ -98,6 +98,11 @@ Este script forma uma excelente base para análises mais complexas. Algumas idei
 * **Relatórios Automáticos:** Gerar e enviar relatórios por e-mail.
 * **Machine Learning:** Aplicar modelos de regressão para prever performance, segmentação de audiências com clustering e NLP para análise de criativos.
 
+
+## Autor
+
+*   [LinkedIn](https://www.linkedin.com/in/thiago-mustasheep/)
+
 ## Licença
 
 Este projeto está licenciado sob a Licença MIT - consulte o arquivo [LICENSE](LICENSE) para obter detalhes.
