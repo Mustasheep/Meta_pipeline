@@ -1,4 +1,4 @@
-# Pipeline de Análise de Dados de Anúncios
+# Guia do pipeline de Análise de Dados de Anúncios
 
 ## Visão Geral
 
@@ -35,20 +35,6 @@ Você pode instalar todas as dependências de uma vez executando o seguinte coma
 
 ```bash
 pip install pandas numpy seaborn matplotlib
-```
-
-## Estrutura do Projeto
-
-```
-/seu-projeto
-|-- pipeline.py                   # O script principal do pipeline
-|-- arquivo.csv.csv               # Exemplo de arquivo de entrada
-|-- README.md                     
-|-- /relatorios_analise/          # Pasta de saída padrão criada pelo script
-    |-- distribuicao_gasto.png
-    |-- anuncios_por_dia.png
-    |-- proporcao_plataforma.png
-    |...
 ```
 
 ## Como Usar
