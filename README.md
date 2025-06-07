@@ -2,75 +2,75 @@
 
 ## Descrição
 
-Este repositório contém um script Python desenvolvido para interagir com a Meta API (Facebook Ads API), com o objetivo de extrair dados de campanhas e insights de performance. A finalidade é aplicar princípios de ciência de dados para analisar e otimizar campanhas de tráfego pago, servindo como uma ponte entre a gestão de tráfego e a análise de dados.
+Este repositório contém uma solução completa para extração e análise de dados da Meta API (Facebook Ads API), com o objetivo de aplicar princípios de ciência de dados para otimizar campanhas de tráfego pago. O projeto é composto por dois componentes principais:
+1.  Um **script de extração** (`campanhas.py`) que coleta dados brutos de campanhas e performance.
+2.  Um **pipeline de análise** (`pipeline_analise.py`) que processa esses dados, gera insights e cria relatórios visuais de forma automatizada.
 
-Este projeto visa facilitar a coleta automatizada de dados essenciais para tomada de decisões estratégicas em marketing digital.
+Este projeto visa facilitar a coleta e análise de dados essenciais para tomada de decisões estratégicas em marketing digital.
 
 ## Objetivo do Projeto
 
-O principal objetivo deste script é:
+O principal objetivo desta solução é:
 
-* Automatizar a coleta de dados detalhados de campanhas (configurações, status, orçamentos) da Meta API.
-* Extrair métricas de performance (KPIs como spend, cliques, impressões, CTR, CPC) de campanhas ativas.
-* Estruturar os dados coletados em formatos tabulares (DataFrames do Pandas) para fácil manipulação e análise subsequente.
-* Fornecer uma base para análises mais aprofundadas, relatórios personalizados e, futuramente, a aplicação de modelos de ciência de dados para otimização de campanhas.
+* **Automatizar a coleta de dados** detalhados de campanhas (configurações, status, orçamentos) e métricas de performance (KPIs como spend, cliques, CTR, CPC) da Meta API.
+* **Estruturar os dados** em formatos tabulares (DataFrames do Pandas) para fácil manipulação.
+* **Processar e enriquecer os dados** através de um pipeline de análise que realiza limpeza, validação e engenharia de features.
+* **Gerar relatórios automáticos** e visualizações que facilitem a compreensão da performance das campanhas.
+* Fornecer uma base para análises mais aprofundadas e, futuramente, a aplicação de modelos de ciência de dados para otimização.
 
 ## Estrutura do Repositório
-```
-script_metaapi/
-├── Scripts/                  
-│   └── campanhas.py
-├── .gitignore
-├── LICENSE
-├── README.md                
-└── Requirements.txt          
-```
 
-## Funcionalidades do Script
+---
 
-O script principal realiza as seguintes operações:
+## Funcionalidades
 
-1.  **Carregamento de Credenciais:** Importa de forma segura as credenciais da API (App ID, App Secret, Access Token, Ad Account ID) a partir de um arquivo local `my_credentials.py`.
-2.  **Inicialização da API:** Estabelece conexão com a Facebook Ads API.
-3.  **Extração de Dados de Campanhas:**
-    * Conecta-se à conta de anúncios especificada.
-    * Busca informações detalhadas de todas as campanhas, incluindo: `id`, `name`, `status`, `effective_status`, `objective`, `created_time`, `start_time`, `stop_time`, `spend_cap`, `daily_budget`, `lifetime_budget`.
-    * Armazena esses dados em um DataFrame do Pandas chamado `df_campaigns`.
-4.  **Extração de Insights de Performance:**
-    * Busca métricas de desempenho para as campanhas `ATIVAS` nos últimos 7 dias (`last_7d`), com dados diários (`time_increment: 1`) e segmentados por plataforma de veiculação (`breakdowns: ['publisher_platform']`).
-    * Os insights coletados incluem: `campaign_name`, `campaign_id`, `spend`, `inline_link_clicks`, `impressions`, `ctr`, `cpc`.
-    * Converte as colunas numéricas relevantes para o tipo de dado correto.
-    * Armazena esses dados em um DataFrame do Pandas chamado `df_insights`.
-    * (Possui uma funcionalidade comentada para salvar os insights em um arquivo `insights_campanhas_por_plataforma.csv`).
+### 1. Script de Extração (`campanhas.py`)
+
+Este script se conecta à Meta API e realiza as seguintes operações:
+
+* **Carregamento de Credenciais:** Importa de forma segura as credenciais da API (`App ID`, `App Secret`, etc.) de um arquivo local `my_credentials.py`.
+* **Inicialização da API:** Estabelece conexão com a Facebook Ads API.
+* **Extração de Dados de Campanhas:** Busca informações detalhadas de todas as campanhas (`id`, `name`, `status`, `budget`, etc.) e as armazena no DataFrame `df_campaigns`.
+* **Extração de Insights de Performance:** Busca métricas de desempenho para as campanhas ativas nos últimos 7 dias, segmentadas por plataforma. Os dados (`spend`, `clicks`, `ctr`, `cpc`) são armazenados no DataFrame `df_insights`.
+* **Geração de Arquivo:** Salva os insights de performance em um arquivo CSV, que servirá de entrada para o pipeline de análise.
+
+### 2. Pipeline de Análise de Performance (`pipeline_analise.py`)
+
+Este segundo script consome os dados gerados pelo extrator e executa um pipeline de análise automatizado com as seguintes funcionalidades:
+
+* **Carga e Limpeza**: Carrega o CSV de insights, converte tipos de dados e trata valores ausentes.
+* **Engenharia de Features**: Cria novas colunas com informações valiosas, como dia da semana, e recalcula métricas como CPC e CTR para garantir consistência.
+* **Geração de Relatórios Visuais**: Cria e salva automaticamente gráficos em formato `.png` sobre a distribuição de gastos, performance por dia da semana e proporção por plataforma.
+* **Saída de Dados Enriquecidos**: Salva um novo arquivo CSV contendo os dados originais acrescidos das novas features, pronto para análises mais profundas ou para ser usado em dashboards.
 
 ## Tecnologias Utilizadas
 
-* **Python 3.x**
-* **Pandas:** Para manipulação e análise de dados em formato de DataFrame.
-* **Facebook Business SDK (`facebook_business`):** Biblioteca oficial da Meta para interagir com a Ads API.
+* **Python 3**
+* **Pandas:** Para manipulação e análise de dados.
+* **Facebook Business SDK (`facebook_business`):** Biblioteca oficial para interagir com a Ads API.
+* **Matplotlib & Seaborn:** Para a geração dos gráficos e visualizações no pipeline de análise.
 
 ## Como Usar
 
+O fluxo de trabalho consiste em duas etapas principais: extrair os dados e, em seguida, analisá-los.
+
+### Etapa 1: Extrair os Dados com `campanhas.py`
+
 1.  **Pré-requisitos:**
-    * Python 3.x instalado.
-    * Conta de Desenvolvedor da Meta configurada e aprovada para acesso à Ads API.
-    * Um App da Meta criado com as permissões `ads_management` e `ads_read`.
-    * As seguintes credenciais obtidas da sua aplicação Meta e conta de anúncios:
-        * `APP_ID`
-        * `APP_SECRET`
-        * `ACCESS_TOKEN` (de preferência um token de acesso de longa duração)
-        * `AD_ACCOUNT_ID` (no formato `act_XXXXXXXXXXXXX`)
+    * Python 3 instalado.
+    * Uma conta de Desenvolvedor da Meta com um App aprovado para acesso à Ads API (permissões `ads_management` e `ads_read`).
+    * Suas credenciais: `APP_ID`, `APP_SECRET`, `ACCESS_TOKEN` e `AD_ACCOUNT_ID`.
 
 2.  **Instalação:**
     ```bash
-    git clone https://github.com/Mustasheep/script_metaapi.git
+    git clone [https://github.com/Mustasheep/script_metaapi.git](https://github.com/Mustasheep/script_metaapi.git)
     cd script_metaapi
     pip install -r Requirements.txt
     ```
 
 3.  **Configuração:**
-    * Crie um arquivo chamado `my_credentials.py` na raiz do projeto (no mesmo nível que o script principal).
-    * Adicione suas credenciais a este arquivo da seguinte forma:
+    * Crie um arquivo chamado `my_credentials.py` na raiz do projeto.
+    * Adicione suas credenciais a este arquivo:
         ```python
         # my_credentials.py
         APP_ID = 'SEU_APP_ID'
@@ -79,30 +79,43 @@ O script principal realiza as seguintes operações:
         AD_ACCOUNT_ID = 'SEU_AD_ACCOUNT_ID'
         ```
 
-4.  **Execução:**
-    * Navegue até a pasta onde o script está localizado.
-    * Execute o script usando Python:
+4.  **Execução da Extração:**
+    * **Importante:** No script `Scripts/campanhas.py`, certifique-se de que a funcionalidade para salvar os insights em um arquivo CSV esteja ativa (descomentada). Ela será a fonte de dados para a próxima etapa.
+    * Execute o script:
         ```bash
-        python campanhas.py
+        python Scripts/campanhas.py
         ```
-    * O script imprimirá mensagens de status no console e, se bem-sucedido, os DataFrames `df_campaigns` e `df_insights` estarão disponíveis no ambiente do script para uso (recomendo executar em um interpretador Python interativo, como o Jupyter notebook).
+    * Ao final, um arquivo como `insights_campanhas_por_plataforma.csv` será criado na raiz do projeto.
 
+### Etapa 2: Analisar os Dados com o Pipeline
+
+1.  **Execução da Análise:**
+    * O pipeline de análise (`pipeline_analise.py`) é executado via terminal e pode receber parâmetros para definir os arquivos de entrada e saída.
+    * Execute o script, passando o arquivo gerado na etapa anterior como entrada:
+        ```bash
+        # Exemplo: usando o arquivo gerado e salvando na pasta 'meus_relatorios'
+        python Scripts/pipeline_analise.py --entrada insights_campanhas_por_plataforma.csv --saida meus_relatorios
+        ```
+
+    * Para ver todas as opções de parametrização, utilize o comando de ajuda:
+        ```bash
+        python Scripts/pipeline_analise.py --help
+        ```
 
 ## Próximos Passos e Evolução
 
-Este script forma uma excelente base para análises mais complexas. Algumas ideias para evolução:
+Este projeto integrado forma uma excelente base para automação e análises mais complexas. Algumas ideias para evolução:
 
-* **Visualização de Dados:** Gerar gráficos e dashboards (ex: com `matplotlib`, `seaborn`, `plotly` ou ferramentas de BI).
-* **Detecção de Anomalias:** Identificar mudanças bruscas em KPIs.
-* **Automação Avançada:** Agendar a execução do script para coletar dados regularmente.
-* **Relatórios Automáticos:** Gerar e enviar relatórios por e-mail.
+* **Orquestração de Dados:** Utilizar ferramentas como Cron ou Apache Airflow para agendar a execução sequencial dos scripts (primeiro a extração, depois a análise).
+* **Aprimoramento dos Dashboards:** Enviar os dados do CSV enriquecido para ferramentas de BI (Power BI, Looker Studio) para criar painéis interativos.
+* **Detecção de Anomalias:** Implementar algoritmos no pipeline de análise para identificar mudanças bruscas em KPIs e enviar alertas.
 * **Machine Learning:** Aplicar modelos de regressão para prever performance, segmentação de audiências com clustering e NLP para análise de criativos.
-
 
 ## Autor
 
-*   [LinkedIn](https://www.linkedin.com/in/thiago-mustasheep/)
+* [LinkedIn](https://www.linkedin.com/in/thiago-mustasheep/)
 
 ## Licença
 
 Este projeto está licenciado sob a Licença MIT - consulte o arquivo [LICENSE](LICENSE) para obter detalhes.
+
