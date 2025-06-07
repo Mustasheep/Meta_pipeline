@@ -49,7 +49,7 @@ Este comando executará o pipeline usando os valores padrão definidos no script
 - **Arquivo final**: `dados_enriquecidos.csv`
 
 ```bash
-python pipeline_parametrizado.py
+python pipeline_analise.py
 ```
 
 ### 2. Especificando Arquivos de Entrada e Saída
@@ -60,7 +60,7 @@ Use as flags `--entrada` e `--saida` para processar um arquivo diferente e salva
 Vamos supor que você tenha os dados de Maio em `dados_maio.csv` e queira salvar os relatórios na pasta `relatorios_de_maio`.
 
 ```bash
-python pipeline_parametrizado.py --entrada dados_maio.csv --saida relatorios_de_maio
+python pipeline_analise.py --entrada dados_maio.csv --saida relatorios_de_maio
 ```
 
 ### 3. Customizando Todos os Parâmetros
@@ -70,7 +70,7 @@ Você também pode customizar o nome do arquivo CSV de saída com a flag `--arqu
 **Exemplo:**
 
 ```bash
-python pipeline_parametrizado.py --entrada dados_junho.csv --saida relatorios_junho --arquivo_final dados_processados_jun.csv
+python pipeline_analise.py --entrada dados_junho.csv --saida relatorios_junho --arquivo_final dados_processados_jun.csv
 ```
 
 ### 4. Obtendo Ajuda
@@ -78,7 +78,7 @@ python pipeline_parametrizado.py --entrada dados_junho.csv --saida relatorios_ju
 Para ver todas as opções disponíveis e suas descrições, use a flag `--help`.
 
 ```bash
-python pipeline_parametrizado.py --help
+python pipeline_analise.py --help
 ```
 
 ## Formato do Arquivo de Entrada
