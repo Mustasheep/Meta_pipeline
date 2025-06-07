@@ -20,7 +20,20 @@ O principal objetivo desta solução é:
 
 ## Estrutura do Repositório
 
----
+```
+script_metaapi/
+├── Scripts/
+│   ├── campanhas.py          # Script para extração de dados da Meta API
+│   └── pipeline_analise.py   # Pipeline para análise e geração de relatórios
+├── relatorios_analise/       # Pasta de exemplo para os relatórios gerados
+│   ├── distribuicao_gasto.png
+│   ├── dados_enriquecidos.csv
+│   └ ...
+├── .gitignore
+├── LICENSE
+├── README.md
+└── Requirements.txt
+```
 
 ## Funcionalidades
 
@@ -45,7 +58,7 @@ Este segundo script consome os dados gerados pelo extrator e executa um pipeline
 
 ## Tecnologias Utilizadas
 
-* **Python 3**
+* **Python 3.x**
 * **Pandas:** Para manipulação e análise de dados.
 * **Facebook Business SDK (`facebook_business`):** Biblioteca oficial para interagir com a Ads API.
 * **Matplotlib & Seaborn:** Para a geração dos gráficos e visualizações no pipeline de análise.
@@ -57,7 +70,7 @@ O fluxo de trabalho consiste em duas etapas principais: extrair os dados e, em s
 ### Etapa 1: Extrair os Dados com `campanhas.py`
 
 1.  **Pré-requisitos:**
-    * Python 3 instalado.
+    * Python 3.x instalado.
     * Uma conta de Desenvolvedor da Meta com um App aprovado para acesso à Ads API (permissões `ads_management` e `ads_read`).
     * Suas credenciais: `APP_ID`, `APP_SECRET`, `ACCESS_TOKEN` e `AD_ACCOUNT_ID`.
 
