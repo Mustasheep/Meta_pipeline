@@ -69,21 +69,27 @@ try:
     account = AdAccount(fbid=my_ad_account_id)
     
     insight_fields = [
+        'adset_name',  
+        'adset_id',    
         'campaign_name',
         'campaign_id',
         'spend',
         'inline_link_clicks',
         'impressions',
         'ctr', 
-        'cpc' 
+        'cpc',
+        'actions',         
+        'action_values',   
+        'purchase_roas'     
     ]
     
     insight_params = {
-        'level': 'campaign',
-        'date_preset': 'last_7d',
+        'level': 'adset',
+        'date_preset': 'last_month',
         'time_increment': 1,
-        'breakdowns': ['publisher_platform'],
-        'filtering': [{'field': 'campaign.effective_status', 'operator': 'IN', 'value': ['ACTIVE']}]
+        'breakdowns': ['region'],
+        'filtering': [{'field': 'adset.effective_status', 'operator': 'IN', 'value': ['ACTIVE']}],
+        'action_breakdowns': ['action_type']
     }
 
     print(f"\nBuscando insights para a conta: {my_ad_account_id}...")
@@ -102,8 +108,8 @@ try:
             if col in df_insights.columns:
                 df_insights[col] = pd.to_numeric(df_insights[col], errors='coerce')
 
-        # df_insights.to_csv('insights_campanhas_por_plataforma.csv', index=False)
-        # print("\nDados de insights salvos em 'insights_campanhas_por_plataforma.csv'")
+        df_insights.to_csv('insights_campanhas.csv', index=False)
+        print("\nDados de insights salvos em 'insights_campanhas.csv'")
     else:
         print("Nenhum insight encontrado com os critérios especificados.")
 
