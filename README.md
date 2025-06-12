@@ -2,6 +2,20 @@
 
 Este repositório contém um pipeline de dados totalmente automatizado, projetado para extrair insights de performance de campanhas do **Meta Ads** e consolidá-los de forma incremental em uma planilha centralizada no **Google Sheets**.
 
+## Objetivo do Projeto
+
+O objetivo final deste pipeline é criar uma fonte de dados robusta, centralizada e sempre atualizada no Google Sheets.
+
+Esta planilha serve como a base para alimentar dashboards e relatórios interativos no Looker Studio, permitindo o acompanhamento de performance das campanhas de forma visual e acessível para os clientes.
+
+## Funcionalidades Principais
+
+  - **Extração de Múltiplas Contas:** O sistema é capaz de se conectar a diversas contas de anúncio do Meta e extrair dados de forma consolidada.
+  - **Performance Assíncrona:** Utiliza chamadas assíncronas à API do Meta para otimizar o tempo de extração de dados, processando várias solicitações em paralelo.
+  - **Processamento de Dados:** Transforma os dados brutos da API, incluindo o tratamento e a dinamização de métricas complexas como `actions` (ações), para um formato analítico tabular.
+  - **Armazenamento Incremental:** Os dados semanais são **adicionados** à planilha do Google Sheets, preservando todo o histórico de performance e evitando a sobreposição de informações.
+  - **Agendamento Automático:** O pipeline é executado automaticamente em uma frequência semanal, garantindo que os dados estejam sempre atualizados sem qualquer intervenção manual.
+
 ## Estrutura do Projeto
 
 O repositório está organizado da seguinte forma para separar as responsabilidades e configurações:
@@ -27,13 +41,6 @@ O repositório está organizado da seguinte forma para separar as responsabilida
   - **Automação e CI/CD:**
       - `GitHub Actions`: Para o agendamento e execução automática dos pipelines em ambiente de nuvem.
 
-## Funcionalidades Principais
-
-  - **Extração de Múltiplas Contas:** O sistema é capaz de se conectar a diversas contas de anúncio do Meta e extrair dados de forma consolidada.
-  - **Performance Assíncrona:** Utiliza chamadas assíncronas à API do Meta para otimizar o tempo de extração de dados, processando várias solicitações em paralelo.
-  - **Processamento de Dados:** Transforma os dados brutos da API, incluindo o tratamento e a dinamização de métricas complexas como `actions` (ações), para um formato analítico tabular.
-  - **Armazenamento Incremental:** Os dados semanais são **adicionados** à planilha do Google Sheets, preservando todo o histórico de performance e evitando a sobreposição de informações.
-  - **Agendamento Automático:** O pipeline é executado automaticamente em uma frequência semanal, garantindo que os dados estejam sempre atualizados sem qualquer intervenção manual.
 
 ## Fluxo de Trabalho do Pipeline
 
