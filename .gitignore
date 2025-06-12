@@ -5,8 +5,10 @@ gcp_credentials.json
 # Documento com os dados
 relatorio_consolidado_clientes.csv
 
-# Pasta de notebooks
+# Notebooks
 notebooks/
+upload_relatorio_gdrive.ipynb
+meta_ads_script.ipynb
 
 # Ambientes virtuais Python
 venv/
