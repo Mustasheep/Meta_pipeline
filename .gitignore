@@ -1,5 +1,9 @@
 # Arquivo de credenciais
 my_credentials.py
+gcp_credentials.json
+
+# Documento com os dados
+relatorio_consolidado_clientes.csv
 
 # Pasta de notebooks
 notebooks/
