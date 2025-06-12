@@ -1,14 +1,14 @@
 name: Gerar e Enviar Relatorio Semanal
 
 on:
-  workflow_dispatch: # Permite rodar manualmente pelo site do GitHub
+  workflow_dispatch:
   schedule:
     # Roda toda Sexta-feira às 12:00 UTC (09:00 no horário de Brasília)
     - cron: '0 12 * * 5'
 
 jobs:
   build-and-upload:
-    runs-on: ubuntu-latest # Usa um servidor Linux na nuvem
+    runs-on: ubuntu-latest
 
     steps:
       - name: 1. Checkout do Repositorio
@@ -17,7 +17,7 @@ jobs:
       - name: 2. Configurar Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10' # Pode ajustar a versão se necessário
+          python-version: '3.13'
 
       - name: 3. Instalar Bibliotecas Python
         run: |
@@ -27,7 +27,6 @@ jobs:
         run: |
           echo "${{ secrets.META_CREDENTIALS }}" > my_credentials.py
           echo "${{ secrets.GCP_CREDENTIALS }}" > gcp_credentials.json
-        # Este comando pega o conteúdo dos segredos e cria os arquivos que seus scripts precisam
 
       - name: 5. Executar o Pipeline de Extracao do Meta
         run: python meta_ads_script.py
