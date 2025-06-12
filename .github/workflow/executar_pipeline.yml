@@ -1,0 +1,41 @@
+name: Gerar e Enviar Relatorio Semanal
+
+on:
+  workflow_dispatch: # Permite rodar manualmente pelo site do GitHub
+  schedule:
+    # Roda toda Sexta-feira às 12:00 UTC (09:00 no horário de Brasília)
+    - cron: '0 12 * * 5'
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest # Usa um servidor Linux na nuvem
+
+    steps:
+      - name: 1. Checkout do Repositorio
+        uses: actions/checkout@v3
+
+      - name: 2. Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' # Pode ajustar a versão se necessário
+
+      - name: 3. Instalar Bibliotecas Python
+        run: |
+          pip install pandas numpy facebook-business gspread gspread-dataframe
+
+      - name: 4. Criar Arquivos de Credenciais a partir dos Secrets
+        run: |
+          echo "${{ secrets.META_CREDENTIALS }}" > my_credentials.py
+          echo "${{ secrets.GCP_CREDENTIALS }}" > gcp_credentials.json
+        # Este comando pega o conteúdo dos segredos e cria os arquivos que seus scripts precisam
+
+      - name: 5. Executar o Pipeline de Extracao do Meta
+        run: python meta_ads_script.py
+
+      - name: 6. Executar o Pipeline de Upload para o Google Drive
+        run: python upload_relatorio_gdrive.py
+
+      - name: 7. Limpar Credenciais (Boa Pratica)
+        run: |
+          rm my_credentials.py
+          rm gcp_credentials.json
