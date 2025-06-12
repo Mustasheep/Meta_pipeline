@@ -28,12 +28,13 @@ O repositório está organizado da seguinte forma para separar as responsabilida
 ├── .gitignore
 ├── meta_ads_script.py                # Pipeline 1: Extração e processamento dos dados do Meta
 ├── upload_relatorio_gdrive.py        # Pipeline 2: Upload para o Google Sheets
+├── LICENSE
 └── README.md
 ```
 
 ## Tecnologias Utilizadas
 
-  - **Linguagem:** Python 3.10
+  - **Linguagem:** Python 3.13
   - **Bibliotecas Principais:**
       - `pandas`: Para manipulação e processamento de dados.
       - `facebook-business`: SDK oficial para interação com a API do Meta Ads.
