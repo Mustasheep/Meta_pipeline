@@ -34,7 +34,7 @@ jobs:
       - name: 6. Executar o Pipeline de Upload para o Google Drive
         run: python upload_relatorio_gdrive.py
 
-      - name: 7. Limpar Credenciais (Boa Pratica)
+      - name: 7. Limpar Credenciais
         run: |
           rm my_credentials.py
           rm gcp_credentials.json
