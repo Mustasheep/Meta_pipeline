@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Roda toda Sexta-feira às 12:00 UTC (09:00 no horário de Brasília)
-    - cron: '0 12 * * 5'
+    - cron: '0 15 * * 5'
 
 jobs:
   build-and-upload:
