@@ -28,6 +28,12 @@ jobs:
           echo "${{ secrets.META_CREDENTIALS }}" > my_credentials.py
           echo "${{ secrets.GCP_CREDENTIALS }}" > gcp_credentials.json
 
+      - name: DEBUG - Exibir conteudo do JSON em Base64
+        run: |
+          echo "--- Conteudo do gcp_credentials.json (codificado em Base64) ---"
+          base64 gcp_credentials.json
+          echo "------------------------------------------------------------"
+
       - name: 5. Executar o Pipeline de Extracao do Meta
         run: python meta_ads_script.py
 
