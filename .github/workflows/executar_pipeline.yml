@@ -35,6 +35,7 @@ jobs:
         run: python upload_relatorio_gdrive.py
 
       - name: 7. Limpar Credenciais
+        if: always()
         run: |
-          rm my_credentials.py
-          rm gcp_credentials.json
+          rm -f my_credentials.py
+          rm -f gcp_credentials.json
