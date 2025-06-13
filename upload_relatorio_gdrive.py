@@ -3,7 +3,6 @@ import gspread
 import logging
 import os
 
-# Configuração básica de logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -45,7 +44,7 @@ def obter_ou_criar_planilha(client: gspread.Client, nome_planilha: str) -> gspre
     except gspread.exceptions.SpreadsheetNotFound:
         logging.warning(f"Planilha '{nome_planilha}' não encontrada. Criando uma nova...")
         spreadsheet = client.create(nome_planilha)
-        spreadsheet.share('thiagoassis.escritorio@gmail.com', perm_type='user', role='writer') #compartilhado com meu email pessoal
+        spreadsheet.share('thiagoassis.escritorio@gmail.com', perm_type='user', role='writer')
         logging.info(f"Planilha '{nome_planilha}' criada e compartilhada com você com sucesso.")
         return spreadsheet
 
