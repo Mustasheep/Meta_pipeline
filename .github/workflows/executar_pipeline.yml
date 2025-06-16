@@ -23,10 +23,13 @@ jobs:
         run: |
           pip install pandas numpy facebook-business gspread gspread-dataframe
 
-      - name: 4. Criar Arquivos de Credenciais a partir dos Secrets
+      - name: 4. Criar Arquivos de Credenciais de forma segura
+        env:
+          GCP_CREDS_CONTENT: ${{ secrets.GCP_CREDENTIALS }}
+          META_CREDS_CONTENT: ${{ secrets.META_CREDENTIALS }}
         run: |
-          echo "${{ secrets.META_CREDENTIALS }}" > my_credentials.py
-          echo "${{ secrets.GCP_CREDENTIALS }}" > gcp_credentials.json
+          echo "$GCP_CREDS_CONTENT" > gcp_credentials.json
+          echo "$META_CREDS_CONTENT" > my_credentials.py
 
       - name: 5. Executar o Pipeline de Extracao do Meta
         run: python meta_ads_script.py
@@ -34,7 +37,8 @@ jobs:
       - name: 6. Executar o Pipeline de Upload para o Google Drive
         run: python upload_relatorio_gdrive.py
 
-      - name: 7. Limpar Credenciais (Boa Pratica)
+      - name: 7. Limpar Credenciais
+        if: always()
         run: |
-          rm my_credentials.py
-          rm gcp_credentials.json
+          rm -f my_credentials.py
+          rm -f gcp_credentials.json

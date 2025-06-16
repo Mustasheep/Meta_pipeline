@@ -27,9 +27,9 @@ O repositório está organizado da seguinte forma para separar as responsabilida
 │       └── executar_pipeline.yml     # Arquivo de automação do GitHub Actions
 ├── .gitignore
 ├── LICENSE
-├── meta_ads_script.py                # Pipeline 1: Extração e processamento dos dados do Meta
 ├── README.md
-├── requirements.txt
+├── Requirements.txt
+├── meta_ads_script.py                # Pipeline 1: Extração e processamento dos dados do Meta
 └── upload_relatorio_gdrive.py        # Pipeline 2: Upload para o Google Sheets
 ```
 

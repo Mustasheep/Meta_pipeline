@@ -7,7 +7,6 @@ import logging
 import time
 from typing import Dict, Optional
 
-# Configuração básica de logging para melhor feedback do processo
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -21,7 +20,7 @@ except ImportError:
     logging.error("Arquivo de credenciais 'my_credentials.py' não encontrado.")
     exit()
 
-# --- ETAPA 1: CONFIGURAÇÃO (Otimizada) ---
+# --- ETAPA 1: CONFIGURAÇÃO ---
 
 def inicializar_api():
     """Inicializa a API do Facebook. Encerra o script em caso de falha."""
@@ -55,7 +54,7 @@ INSIGHT_PARAMS = {
     'limit': 2000
 }
 
-# --- ETAPA 2: EXTRAÇÃO ASSÍNCRONA (Melhoria de Performance) ---
+# --- ETAPA 2: EXTRAÇÃO ASSÍNCRONA ---
 
 def extrair_insights_de_multiplas_contas(mapa_clientes: Dict[str, str]) -> Optional[pd.DataFrame]:
     """
@@ -77,7 +76,7 @@ def extrair_insights_de_multiplas_contas(mapa_clientes: Dict[str, str]) -> Optio
     insights_por_cliente = []
     active_jobs = list(jobs)
     while active_jobs:
-        time.sleep(5) # Aguarda para não sobrecarregar a API com verificações
+        time.sleep(5) 
         remaining_jobs = []
         for job_info in active_jobs:
             job = job_info['job']
@@ -103,7 +102,7 @@ def extrair_insights_de_multiplas_contas(mapa_clientes: Dict[str, str]) -> Optio
                     logging.error(f"  [FALHA] Job para '{nome_cliente}' falhou com status: {status}. Causa: {job.get('async_percent_completion', 'N/A')}")
                 
                 else: 
-                    remaining_jobs.append(job_info) # Job ainda não terminou, verifica novamente
+                    remaining_jobs.append(job_info)
                     
             except FacebookRequestError as e:
                 logging.error(f"  [ERRO API] Erro ao verificar status do job para '{nome_cliente}': {e.api_error_message()}")
@@ -133,7 +132,7 @@ def processar_e_salvar(df: pd.DataFrame, caminho_saida: str):
 
     logging.info("Iniciando pós-processamento do DataFrame consolidado...")
 
-    # 1. Transformação da coluna 'actions' (de dicionário para colunas)
+    # 1. Transformação da coluna 'actions'
     if 'actions' in df.columns:
         df_actions = df.dropna(subset=['actions']).copy()
         if not df_actions.empty:
@@ -165,13 +164,11 @@ def processar_e_salvar(df: pd.DataFrame, caminho_saida: str):
             df[col] = pd.to_numeric(df[col], errors='coerce')
     logging.info("Colunas métricas convertidas para formato numérico.")
 
-    # 3. Tratamento de Valores Nulos (NOVA SEÇÃO)
-    # Para colunas numéricas, preenche nulos com 0
+    # 3. Tratamento de Valores Nulos
     numeric_cols = df.select_dtypes(include=np.number).columns
     df[numeric_cols] = df[numeric_cols].fillna(0)
     logging.info("Valores nulos em colunas numéricas preenchidos com 0.")
 
-    # Para colunas de texto (object), preenche nulos com string vazia
     string_cols = df.select_dtypes(include='object').columns
     df[string_cols] = df[string_cols].fillna('')
     logging.info("Valores nulos em colunas de texto preenchidos com ''.")

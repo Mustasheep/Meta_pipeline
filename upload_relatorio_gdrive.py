@@ -3,7 +3,6 @@ import gspread
 import logging
 import os
 
-# Configuração básica de logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -45,7 +44,7 @@ def obter_ou_criar_planilha(client: gspread.Client, nome_planilha: str) -> gspre
     except gspread.exceptions.SpreadsheetNotFound:
         logging.warning(f"Planilha '{nome_planilha}' não encontrada. Criando uma nova...")
         spreadsheet = client.create(nome_planilha)
-        spreadsheet.share('thiagoassis.escritorio@gmail.com', perm_type='user', role='writer') #compartilhado com meu email pessoal
+        spreadsheet.share('thiagoassis.escritorio@gmail.com', perm_type='user', role='writer')
         logging.info(f"Planilha '{nome_planilha}' criada e compartilhada com você com sucesso.")
         return spreadsheet
 
@@ -95,22 +94,22 @@ def main():
 
     # --- LÓGICA DE ADIÇÃO DE DADOS ---
     try:
-        # 1. Verifica se a planilha já tem um cabeçalho
+        # Verifica se a planilha já tem um cabeçalho
         header_existente = worksheet.row_values(1)
     except gspread.exceptions.APIError as e:
         logging.warning(f"Não foi possível ler a primeira linha, assumindo que a planilha está vazia. Erro: {e}")
         header_existente = None
         
-    # 2. Converte o DataFrame para uma lista de listas
+    # Converte o DataFrame para uma lista de listas
     dados_para_adicionar = df.values.tolist()
 
     if not header_existente:
-        # 3. Se a planilha está vazia, adiciona o cabeçalho + os dados
+        # Se a planilha está vazia, adiciona o cabeçalho + os dados
         logging.info("Planilha vazia. Adicionando cabeçalho e os novos dados.")
         cabecalho = [df.columns.tolist()]
         worksheet.append_rows(cabecalho + dados_para_adicionar, value_input_option='USER_ENTERED')
     else:
-        # 4. Se a planilha já tem dados, adiciona apenas as novas linhas (sem o cabeçalho)
+        # Se a planilha já tem dados, adiciona apenas as novas linhas
         logging.info("Planilha já contém dados. Adicionando apenas as novas linhas.")
         worksheet.append_rows(dados_para_adicionar, value_input_option='USER_ENTERED')
     
