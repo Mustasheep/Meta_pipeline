@@ -15,6 +15,9 @@ ARQUIVO_CREDENCIAL_GCP = "gcp_credentials.json"
 NOME_PLANILHA_GOOGLE = "Relatório Consolidado de Anúncios Meta"
 NOME_DA_ABA = "Dados Gerais"
 
+# Colunas que serão usadas para verificar duplicatas
+COLUNAS_CHAVE_UNICA = ['Cliente', 'Data']
+
 
 def autenticar_e_obter_cliente() -> gspread.Client:
     """Autentica na API do Google usando a conta de serviço e retorna o cliente."""
@@ -67,21 +70,21 @@ def obter_ou_criar_aba(spreadsheet: gspread.Spreadsheet, nome_aba: str) -> gspre
 
 def main():
     """
-    Orquestra o processo de LEITURA do CSV e ADIÇÃO dos dados ao final
-    da planilha no Google Sheets.
+    Orquestra o processo de leitura do CSV, verificação de duplicatas e
+    adição apenas de dados novos ao Google Sheets.
     """
-    logging.info("--- Iniciando pipeline de upload para o Google Drive (Modo: Adicionar Dados) ---")
+    logging.info("--- Iniciando pipeline de upload para o Google Drive (Modo: Adicionar Novos Dados) ---")
     
     if not os.path.exists(ARQUIVO_CSV_LOCAL):
         logging.error(f"O arquivo de relatório '{ARQUIVO_CSV_LOCAL}' não foi encontrado.")
         return
 
     logging.info(f"Lendo dados de '{ARQUIVO_CSV_LOCAL}'...")
-    df = pd.read_csv(ARQUIVO_CSV_LOCAL)
-    df = df.fillna('')
-    logging.info(f"{len(df)} novas linhas de dados carregadas.")
+    df_novo = pd.read_csv(ARQUIVO_CSV_LOCAL)
+    df_novo = df_novo.fillna('')
+    logging.info(f"{len(df_novo)} linhas de dados carregadas do CSV.")
 
-    if df.empty:
+    if df_novo.empty:
         logging.warning("O arquivo CSV está vazio. Nenhum dado para adicionar.")
         return
 
@@ -92,32 +95,52 @@ def main():
     spreadsheet = obter_ou_criar_planilha(client, NOME_PLANILHA_GOOGLE)
     worksheet = obter_ou_criar_aba(spreadsheet, NOME_DA_ABA)
 
-    # --- LÓGICA DE ADIÇÃO DE DADOS ---
+    # --- LÓGICA DE VERIFICAÇÃO DE DUPLICATAS ---
     try:
-        # Verifica se a planilha já tem um cabeçalho
-        header_existente = worksheet.row_values(1)
+        logging.info("Lendo dados existentes da planilha para evitar duplicatas...")
+        dados_existentes = worksheet.get_all_records()
+        header_presente = True if dados_existentes else False
     except gspread.exceptions.APIError as e:
-        logging.warning(f"Não foi possível ler a primeira linha, assumindo que a planilha está vazia. Erro: {e}")
-        header_existente = None
-        
-    # Converte o DataFrame para uma lista de listas
-    dados_para_adicionar = df.values.tolist()
+        logging.warning(f"Não foi possível ler a planilha, assumindo que está vazia. Erro: {e}")
+        dados_existentes = []
+        header_presente = False
 
-    if not header_existente:
-        # Se a planilha está vazia, adiciona o cabeçalho + os dados
+    if not header_presente:
+        # Se vazia, preenche a planilha
         logging.info("Planilha vazia. Adicionando cabeçalho e os novos dados.")
-        cabecalho = [df.columns.tolist()]
+        cabecalho = [df_novo.columns.tolist()]
+        dados_para_adicionar = df_novo.values.tolist()
         worksheet.append_rows(cabecalho + dados_para_adicionar, value_input_option='USER_ENTERED')
+
     else:
-        # Se a planilha já tem dados, adiciona apenas as novas linhas
-        logging.info("Planilha já contém dados. Adicionando apenas as novas linhas.")
+        logging.info("Planilha já contém dados. Verificando por linhas duplicadas...")
+        df_existente = pd.DataFrame(dados_existentes)
+
+        # Garante que as colunas-chave existam em ambos os dataframes
+        for col in COLUNAS_CHAVE_UNICA:
+            if col not in df_novo.columns:
+                logging.error(f"Erro: A coluna-chave '{col}' não foi encontrada no arquivo CSV.")
+                return
+            if col not in df_existente.columns:
+                logging.error(f"Erro: A coluna-chave '{col}' não foi encontrada na planilha do Google Sheets.")
+                return
+
+        df_novo['chave_unica'] = df_novo[COLUNAS_CHAVE_UNICA].astype(str).agg('_'.join, axis=1)
+        df_existente['chave_unica'] = df_existente[COLUNAS_CHAVE_UNICA].astype(str).agg('_'.join, axis=1)
+        chaves_existentes = set(df_existente['chave_unica'])
+        df_filtrado = df_novo[~df_novo['chave_unica'].isin(chaves_existentes)]
+        df_para_adicionar = df_filtrado.drop(columns=['chave_unica'])
+        if df_para_adicionar.empty:
+            logging.info("Nenhuma linha nova para adicionar. Os dados já estão atualizados.")
+            return
+
+        logging.info(f"Encontradas {len(df_para_adicionar)} novas linhas para adicionar.")
+        dados_para_adicionar = df_para_adicionar.values.tolist()
         worksheet.append_rows(dados_para_adicionar, value_input_option='USER_ENTERED')
-    
-    worksheet.resize(rows=worksheet.row_count)
 
     logging.info("=" * 50)
-    logging.info("UPLOAD (MODO ADICIONAR) CONCLUÍDO COM SUCESSO!")
-    logging.info(f"{len(dados_para_adicionar)} linhas foram adicionadas.")
+    logging.info("UPLOAD (MODO ADICIONAR NOVOS DADOS) CONCLUÍDO COM SUCESSO!")
+    logging.info(f"{len(dados_para_adicionar)} novas linhas foram adicionadas.")
     logging.info(f"Planilha: {spreadsheet.url}")
     logging.info("=" * 50)
 
