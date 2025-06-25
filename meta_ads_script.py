@@ -212,7 +212,7 @@ def processar_e_salvar(df: pd.DataFrame, caminho_saida: str):
         'Custo por Mensagem (R$)', 'Custo por Visita (R$)', 'ROAS', 'Cliques no Link'
     ]
     df_final = df_final[ordem_colunas]
-    df_final.drop(columns=['Resultado (R$)'], inplace=True)
+    df_final.drop(columns=['Resultado (R$)', 'Receita (R$)', 'ROAS'], inplace=True)
     
     try:
         df_final.to_csv(caminho_saida, index=False, encoding='utf-8-sig', decimal=',', sep=';')
