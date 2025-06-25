@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from facebook_business.api import FacebookAdsApi
 from facebook_business.adobjects.adaccount import AdAccount
 from facebook_business.exceptions import FacebookRequestError
@@ -6,24 +7,24 @@ import logging
 import time
 from typing import Dict, Optional, List
 
-# Configuração básica de logging para melhor feedback do processo
+# Configuração básica de logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
-# Bloco para carregar credenciais com segurança
+# Carregamento seguro de credenciais
 try:
     import my_credentials as credential
 except ImportError:
     logging.error("Arquivo de credenciais 'my_credentials.py' não encontrado.")
     exit()
 
-# --- ETAPA 1: CONFIGURAÇÃO (Otimizada) ---
+# --- ETAPA 1: CONFIGURAÇÃO ---
 
 def inicializar_api() -> bool:
-    """Inicializa a API do Facebook. Encerra o script em caso de falha."""
+    """Inicializa a API do Facebook."""
     try:
         FacebookAdsApi.init(
             app_id=credential.APP_ID,
@@ -36,7 +37,7 @@ def inicializar_api() -> bool:
         logging.critical(f"Erro fatal ao inicializar a API: {e}")
         return False
 
-# Definição dos campos e parâmetros (constantes)
+# Definir parâmetros
 INSIGHT_FIELDS = [
     'date_start',
     'campaign_name', 'campaign_id',
@@ -44,20 +45,22 @@ INSIGHT_FIELDS = [
     'spend',
     'reach',
     'impressions',
+    'inline_link_clicks', 
     'ctr',
     'cpc',
-    'cost_per_action_type'
+    'cost_per_action_type',
+    'actions',
+    'action_values'
 ]
 
 INSIGHT_PARAMS = {
     'level': 'adset',
     'date_preset': 'last_7d',
-    'time_increment': 1,
+    'time_increment': '1', 
     'limit': 2000
 }
 
 # --- ETAPA 2: EXTRAÇÃO ASSÍNCRONA ---
-
 def extrair_insights_de_multiplas_contas(mapa_clientes: Dict[str, str]) -> Optional[pd.DataFrame]:
     """
     Inicia requisições assíncronas para buscar insights de múltiplas contas,
@@ -126,120 +129,97 @@ def extrair_insights_de_multiplas_contas(mapa_clientes: Dict[str, str]) -> Optio
     logging.info("Todos os dados dos clientes foram consolidados com sucesso.")
     return df_consolidado
 
-# --- ETAPA 3: PÓS-PROCESSAMENTO ---
-
-def extrair_custos(row: pd.Series) -> pd.Series:
-    """
-    Função para extrair CUSTOS específicos da coluna 'cost_per_action_type'.
-    """
-    custo_por_visita = 0.0
-    custo_por_mensagem = 0.0
-
-    if isinstance(row.get('cost_per_action_type'), list):
-        for cost_action in row['cost_per_action_type']:
-            action_type = cost_action.get('action_type')
-            value = float(cost_action.get('value', 0.0))
-            
-            if action_type == 'landing_page_view':
-                custo_por_visita = value
-            elif action_type == 'onsite_conversion.messaging_conversation_started_7d':
-                custo_por_mensagem = value
-    
-    return pd.Series([custo_por_visita, custo_por_mensagem])
-
+# --- ETAPA 3: PÓS-PROCESSAMENTO UNIFICADO ---
 
 def processar_e_salvar(df: pd.DataFrame, caminho_saida: str):
     """
-    Realiza a limpeza, renomeia colunas, cria features de data e extrai métricas.
+    Processa o DataFrame para extrair, calcular, formatar e selecionar
+    apenas as colunas finais desejadas para o relatório.
     """
     if df is None or df.empty:
         logging.warning("DataFrame vazio. Nada para processar ou salvar.")
         return
 
-    logging.info("Iniciando pós-processamento...")
+    logging.info("Iniciando pós-processamento unificado...")
 
-    # 1. Extração das métricas de custo
-    logging.info("Extraindo métricas de custo...")
-    metricas_custo = df.apply(extrair_custos, axis=1)
-    metricas_custo.columns = ['custo_por_visita_pagina', 'custo_por_mensagem']
-    df = pd.concat([df, metricas_custo], axis=1)
-    df = df.drop(columns=['cost_per_action_type'])
+    def extrair_valor_de_acao(lista_acoes: list, tipo_acao_desejado: str, campo_valor: str = 'value') -> float:
+        if not isinstance(lista_acoes, list):
+            return 0.0
+        for acao in lista_acoes:
+            if acao.get('action_type') == tipo_acao_desejado:
+                return float(acao.get(campo_valor, 0.0))
+        return 0.0
     
-    # 2. Renomeação de todas as colunas para Português
-    logging.info("Renomeando colunas para português...")
-    mapa_colunas = {
+    logging.info("Extraindo métricas de custo, compras e receita...")
+    df['custo_por_visita'] = df['cost_per_action_type'].apply(lambda x: extrair_valor_de_acao(x, 'landing_page_view'))
+    df['custo_por_mensagem'] = df['cost_per_action_type'].apply(lambda x: extrair_valor_de_acao(x, 'onsite_conversion.messaging_conversation_started_7d'))
+    
+    purchase_types = ['purchase', 'offsite_conversion.fb_pixel_purchase', 'omni_purchase']
+    for p_type in purchase_types:
+        df[f'compras_{p_type}'] = df['actions'].apply(lambda x: extrair_valor_de_acao(x, p_type))
+        df[f'receita_{p_type}'] = df['action_values'].apply(lambda x: extrair_valor_de_acao(x, p_type))
+
+    df['compras'] = df[[f'compras_{p_type}' for p_type in purchase_types]].sum(axis=1)
+    df['receita_compras'] = df[[f'receita_{p_type}' for p_type in purchase_types]].sum(axis=1)
+
+    logging.info("Calculando ROAS, Resultado (Lucro) e CPA...")
+    df['spend'] = pd.to_numeric(df['spend'], errors='coerce').fillna(0)
+    
+    df['roas'] = np.where(df['spend'] > 0, df['receita_compras'] / df['spend'], 0)
+    df['resultado_lucro'] = df['receita_compras'] - df['spend']
+    df['cpa'] = np.where(df['compras'] > 0, df['spend'] / df['compras'], 0)
+
+    logging.info("Formatando e selecionando as colunas finais para o relatório...")
+
+    # Mapa de novas colunas à renomear
+    colunas_finais_mapa = {
+        'nome_cliente': 'Cliente',
         'date_start': 'Data',
         'campaign_name': 'Campanha',
-        'campaign_id': 'ID da Campanha',
         'adset_name': 'Conjunto de Anúncios',
-        'adset_id': 'ID do Conjunto de Anúncios',
         'spend': 'Gasto (R$)',
-        'reach': 'Alcance',
+        'receita_compras': 'Receita (R$)',
+        'resultado_lucro': 'Resultado (R$)',
+        'roas': 'ROAS',
         'impressions': 'Impressões',
+        'reach': 'Alcance',
+        'inline_link_clicks': 'Cliques no Link',
         'ctr': 'CTR (%)',
         'cpc': 'CPC (R$)',
-        'nome_cliente': 'Cliente',
-        'custo_por_visita_pagina': 'Custo por Visita (R$)',
+        'compras': 'Compras',
+        'cpa': 'CPA (R$)',
+        'custo_por_visita': 'Custo por Visita (R$)',
         'custo_por_mensagem': 'Custo por Mensagem (R$)'
     }
-    df.rename(columns=mapa_colunas, inplace=True)
-
-    # 3. Conversão de tipos para colunas numéricas
-    cols_numericas = [
-        'Gasto (R$)', 'Alcance', 'Impressões', 'CTR (%)', 'CPC (R$)', 
-        'Custo por Visita (R$)', 'Custo por Mensagem (R$)'
-    ]
-    for col in cols_numericas:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-
-    # 4. Feature Engineering de Data
-    logging.info("Criando features de data com mapeamento manual...")
-    df['Data'] = pd.to_datetime(df['Data'])
     
-    df['dia_semana_num'] = df['Data'].dt.dayofweek
+    df_final = df[list(colunas_finais_mapa.keys())].copy()
+    df_final.rename(columns=colunas_finais_mapa, inplace=True)
 
-    mapa_dias = {
-        0: 'Segunda-feira',
-        1: 'Terça-feira',
-        2: 'Quarta-feira',
-        3: 'Quinta-feira',
-        4: 'Sexta-feira',
-        5: 'Sábado',
-        6: 'Domingo'
-    }
+    df_final['Data'] = pd.to_datetime(df_final['Data'])
+    mapa_dias = {0: 'Segunda-feira', 1: 'Terça-feira', 2: 'Quarta-feira', 3: 'Quinta-feira', 4: 'Sexta-feira', 5: 'Sábado', 6: 'Domingo'}
+    df_final['Dia da Semana'] = df_final['Data'].dt.dayofweek.map(mapa_dias)
     
-    df['Dia da Semana'] = df['dia_semana_num'].map(mapa_dias)
-    df.drop(columns=['dia_semana_num'], inplace=True)
-    df.fillna(0, inplace=True)
-
-    # 6. Reordenação e seleção final de colunas
-    colunas_finais = [
-        'Cliente',
-        'Data',
-        'Dia da Semana',
-        'Campanha',
-        'ID da Campanha',
-        'Conjunto de Anúncios',
-        'ID do Conjunto de Anúncios',
-        'Gasto (R$)',
-        'Impressões',
-        'Alcance',
-        'CTR (%)',
-        'CPC (R$)',
-        'Custo por Visita (R$)',
-        'Custo por Mensagem (R$)'
+    for col in df_final.columns:
+        if '(R$)' in col or 'ROAS' in col or 'CPA' in col or 'CTR' in col or 'Cliques' in col:
+             df_final[col] = pd.to_numeric(df_final[col], errors='coerce').fillna(0)
+    
+    # Reordenação das colunas
+    ordem_colunas = [
+        'Cliente', 'Data', 'Dia da Semana', 'Campanha', 'Conjunto de Anúncios',
+        'Gasto (R$)', 'Receita (R$)', 'Resultado (R$)', 
+        'Compras', 'CPA (R$)',
+        'Impressões', 'Alcance', 'CTR (%)', 'CPC (R$)',
+        'Custo por Mensagem (R$)', 'Custo por Visita (R$)', 'ROAS', 'Cliques no Link'
     ]
-    colunas_finais = [col for col in colunas_finais if col in df.columns]
-    df = df[colunas_finais]
-
-    # 7. Salvar o arquivo final
-    df.to_csv(caminho_saida, index=False, encoding='utf-8-sig')
-    logging.info(f"Relatório consolidado e processado salvo em: {caminho_saida}")
-
+    df_final = df_final[ordem_colunas]
+    
+    try:
+        df_final.to_csv(caminho_saida, index=False, encoding='utf-8-sig', decimal=',', sep=';')
+        logging.info(f"Relatório final e limpo salvo em: {caminho_saida}")
+    except Exception as e:
+        logging.error(f"Não foi possível salvar o arquivo CSV: {e}")
 
 # --- FUNÇÃO PRINCIPAL ---
-
 def main():
     """Função principal que orquestra todo o pipeline."""
     if not inicializar_api():
@@ -250,8 +230,8 @@ def main():
         logging.error("A variável 'MAPA_DE_CLIENTES' não foi encontrada em 'my_credentials.py'.")
         return
 
-    df_final = extrair_insights_de_multiplas_contas(MAPA_DE_CLIENTES)
-    processar_e_salvar(df_final, "relatorio_consolidado_clientes.csv")
+    df_bruto = extrair_insights_de_multiplas_contas(MAPA_DE_CLIENTES)
+    processar_e_salvar(df_bruto, "relatorio_consolidado_clientes.csv")
     logging.info("Pipeline concluído!")
 
 if __name__ == "__main__":
