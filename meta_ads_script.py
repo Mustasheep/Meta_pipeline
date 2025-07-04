@@ -21,7 +21,7 @@ except ImportError:
     logging.error("Arquivo de credenciais 'my_credentials.py' não encontrado.")
     exit()
 
-# --- ETAPA 1: CONFIGURAÇÃO ---
+# --- CONFIGURAÇÃO ---
 
 def inicializar_api() -> bool:
     """Inicializa a API do Facebook."""
@@ -37,7 +37,7 @@ def inicializar_api() -> bool:
         logging.critical(f"Erro fatal ao inicializar a API: {e}")
         return False
 
-# Definir parâmetros
+# --- PARÂMETROS PARA EXTRAÇÃO ---
 INSIGHT_FIELDS = [
     'date_start',
     'campaign_name', 'campaign_id',
@@ -45,7 +45,7 @@ INSIGHT_FIELDS = [
     'spend',
     'reach',
     'impressions',
-    'inline_link_clicks', 
+    'inline_link_clicks',
     'ctr',
     'cpc',
     'cost_per_action_type',
@@ -60,7 +60,7 @@ INSIGHT_PARAMS = {
     'limit': 2000
 }
 
-# --- ETAPA 2: EXTRAÇÃO ASSÍNCRONA ---
+# --- EXTRAÇÃO ASSÍNCRONA ---
 def extrair_insights_de_multiplas_contas(mapa_clientes: Dict[str, str]) -> Optional[pd.DataFrame]:
     """
     Inicia requisições assíncronas para buscar insights de múltiplas contas,
@@ -129,7 +129,7 @@ def extrair_insights_de_multiplas_contas(mapa_clientes: Dict[str, str]) -> Optio
     logging.info("Todos os dados dos clientes foram consolidados com sucesso.")
     return df_consolidado
 
-# --- ETAPA 3: PÓS-PROCESSAMENTO UNIFICADO ---
+# --- PÓS-PROCESSAMENTO ---
 
 def processar_e_salvar(df: pd.DataFrame, caminho_saida: str):
     """
@@ -171,7 +171,7 @@ def processar_e_salvar(df: pd.DataFrame, caminho_saida: str):
 
     logging.info("Formatando e selecionando as colunas finais para o relatório...")
 
-    # Mapa de novas colunas à renomear
+    # Renomeando as colunas
     colunas_finais_mapa = {
         'nome_cliente': 'Cliente',
         'date_start': 'Data',
@@ -203,7 +203,7 @@ def processar_e_salvar(df: pd.DataFrame, caminho_saida: str):
         if '(R$)' in col or 'ROAS' in col or 'CPA' in col or 'CTR' in col or 'Cliques' in col:
              df_final[col] = pd.to_numeric(df_final[col], errors='coerce').fillna(0)
     
-    # Reordenação das colunas
+    # Reordenando as colunas
     ordem_colunas = [
         'Cliente', 'Data', 'Dia da Semana', 'Campanha', 'Conjunto de Anúncios',
         'Gasto (R$)', 'Receita (R$)', 'Resultado (R$)', 
