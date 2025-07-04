@@ -80,7 +80,7 @@ def main():
         return
 
     logging.info(f"Lendo dados de '{ARQUIVO_CSV_LOCAL}'...")
-    df_novo = pd.read_csv(ARQUIVO_CSV_LOCAL)
+    df_novo = pd.read_csv(ARQUIVO_CSV_LOCAL, sep=';')
     df_novo = df_novo.fillna('')
     logging.info(f"{len(df_novo)} linhas de dados carregadas do CSV.")
 
@@ -116,7 +116,7 @@ def main():
         logging.info("Planilha já contém dados. Verificando por linhas duplicadas...")
         df_existente = pd.DataFrame(dados_existentes)
 
-        # Garante que as colunas-chave existam em ambos os dataframes
+        # Loop para garantir que as colunas-chave existam em ambos os dataframes
         for col in COLUNAS_CHAVE_UNICA:
             if col not in df_novo.columns:
                 logging.error(f"Erro: A coluna-chave '{col}' não foi encontrada no arquivo CSV.")
