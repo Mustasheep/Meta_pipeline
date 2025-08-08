@@ -63,4 +63,5 @@ graph TD
 
 A automação é configurada para ser executada semanalmente, **toda sexta-feira**, através do orquestrador do GitHub Actions, garantindo a consistência e a pontualidade na entrega dos relatórios.
 
+
 -----
