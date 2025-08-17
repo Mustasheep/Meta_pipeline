@@ -3,8 +3,8 @@ name: Gerar e Enviar Relatorio Semanal
 on:
   workflow_dispatch:
   schedule:
-    # Roda toda Sexta-feira às 12:00 UTC (09:00 no horário de Brasília)
-    - cron: '0 12 * * 5'
+    # Roda todos os dias às 05:00 no horário de Brasília (08:00 UTC)
+    - cron: '0 8 * * *'
 
 jobs:
   build-and-upload:
