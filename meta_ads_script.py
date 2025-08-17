@@ -55,7 +55,7 @@ INSIGHT_FIELDS = [
 
 INSIGHT_PARAMS = {
     'level': 'adset',
-    'date_preset': 'last_14d',
+    'date_preset': 'yesterday',
     'time_increment': '1', 
     'limit': 2000
 }
