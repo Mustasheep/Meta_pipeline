@@ -62,6 +62,6 @@ graph TD
 ## Agendamento
 
 A automação é configurada para ser executada **diariamente**, através do orquestrador do GitHub Actions, garantindo a consistência e a pontualidade na entrega dos relatórios.
-
+ 
 
 -----
